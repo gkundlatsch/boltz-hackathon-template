@@ -1,0 +1,65 @@
+﻿M-Boltz Hackathon
+----------------------------------------------------------------------------------------------------------------------------
+Team: Glucose
+Idea: Protein Complex Prediction Filtering Strategy
+----------------------------------------------------------------------------------------------------------------------------
+Overview
+We developed a filtering pipeline for protein complex structure prediction, designed to discriminate high-quality antibody-antigen complexes through progressive refinement from low-resolution to high-resolution analysis.
+----------------------------------------------------------------------------------------------------------------------------
+Pipeline Architecture
+Stage 1: Low-Resolution Filtering (Fast Rejection)
+ Purpose: Rapid elimination of physically implausible models using computationally inexpensive metrics
+Execution: Applied to all generated structures before detailed analysis
+
+|-------------------|-----------------|-----------------------------------|------------------------------------------------------------|
+| Filter Type       | Threshold       | Measurement                       | Rationale                                                  |
+|-------------------|-----------------|-----------------------------------|------------------------------------------------------------|
+| Minimum Contacts  | ≥80 contacts    | Heavy atoms within 5.0Å           | Ensures meaningful interface size                          |
+|-------------------|-----------------|-----------------------------------|------------------------------------------------------------|
+| Center of Mass    | <45Å            | Maximum distance between Ab/Ag    | Eliminates unreasonably separated complexes                |
+|-------------------|-----------------|-----------------------------------|------------------------------------------------------------|
+| Steric Clashes    | 0 clashes       | Atoms <1.0Å apart                 | Removes physically impossible atomic overlaps              |
+|-------------------|-----------------|-----------------------------------|------------------------------------------------------------|
+
+----------------------------------------------------------------------------------------------------------------------------
+Pipeline Architecture
+Stage 2: High-Resolution Analysis (Chemical Interactions)
+Purpose: Detailed evaluation of chemical complementarity for remaining candidates
+Execution: Applied only to structures passing Stage 1 filters
+
+Gate Requirements (Must Pass)
+|-------------------|---------------|---------------------|------------------------------------------------------------|
+| Interaction       | Threshold     | Criteria            | Biological Significance                                    |
+|-------------------|---------------|---------------------|------------------------------------------------------------|
+| Hydrogen Bonds    | ≥3 bonds      | N···O/O···N ≤ 3.5Å  | Ensures polar complementarity and specificity              |
+|-------------------|---------------|---------------------|------------------------------------------------------------|
+
+Bonus Scoring (Quality Enhancement)
+|-------------------|---------------|-----------------|------------------------------------------------------------|
+| Interaction       | Threshold     | Bonus Weight    | Biological Role                                            |
+|-------------------|---------------|-----------------|------------------------------------------------------------|
+| Salt Bridges      | ≤4.0Å         | 5.0×            | Electrostatic stabilization                                |
+|-------------------|---------------|-----------------|------------------------------------------------------------|
+| π-π Stacking      | ≤5.5Å         | 3.0×            | Aromatic packing interactions                              |
+|-------------------|---------------|-----------------|------------------------------------------------------------|
+| Cation-π          | ≤6.0Å         | 4.0×            | Charge-aromatic stabilization                              |
+|-------------------|---------------|-----------------|------------------------------------------------------------|
+
+----------------------------------------------------------------------------------------------------------------------------
+Pipeline Architecture
+Composite Scoring Formula
+
+Total Score = (1.0 × Contacts) + (2.0 × H-bonds) + (5.0 × Salt Bridges) + 
+              (3.0 × π-π) + (4.0 × Cation-π)
+
+Final Quality Gate
+Minimum Score: ≥350 points
+Purpose: Ensures balanced combination of interface size and chemical quality
+----------------------------------------------------------------------------------------------------------------------------
+What's next ?
+*Fine tuning of the parameters because the filtering and requirement are too arbitrary
+*Having multiple rounds of computation with an increasing resolution where the low scores are put aside to aim the computational power right and run faster
+*Use a more complex antibody analysis upstream of Boltz to score and filtrate outcomes such as implementing DeepSP from Lateefat et al. (2024) Computational and structural biotechnology journal.
+----------------------------------------------------------------------------------------------------------------------------
+Thank you for this opportunity
+----------------------------------------------------------------------------------------------------------------------------
